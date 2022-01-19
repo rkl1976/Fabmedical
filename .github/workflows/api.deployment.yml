@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "2"
+  creationTimestamp: "2022-01-19T13:26:47Z"
+  generation: 5
+  labels:
+    app: api
+  name: api
+  namespace: default
+  resourceVersion: "39633"
+  selfLink: /apis/apps/v1/namespaces/default/deployments/api
+  uid: 937e1ad2-e535-4a21-8a48-ec148b2db6e5
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: api
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: api
+        name: api
+    spec:
+      containers:
+      - env:
+        - name: MONGODB_CONNECTION
+          valueFrom:
+            secretKeyRef:
+              key: db
+              name: cosmosdb
+        image: acr523115.azurecr.io/content-api
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 3001
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          successThreshold: 1
+          timeoutSeconds: 10
+        name: api
+        ports:
+        - containerPort: 3001
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        securityContext:
+          privileged: false
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2022-01-19T13:26:47Z"
+    lastUpdateTime: "2022-01-19T13:42:04Z"
+    message: ReplicaSet "api-588d9f7db" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  - lastTransitionTime: "2022-01-19T13:45:54Z"
+    lastUpdateTime: "2022-01-19T13:45:54Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  observedGeneration: 5
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
